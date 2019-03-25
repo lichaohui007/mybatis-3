@@ -30,14 +30,18 @@ public final class PropertyCopier {
     Class<?> parent = type;
     while (parent != null) {
       final Field[] fields = parent.getDeclaredFields();
+      //遍历所有的field
       for(Field field : fields) {
         try {
+          //设置属性可访问性
           field.setAccessible(true);
+          //从sourceBean中  复制到 destinationBean 去
           field.set(destinationBean, field.get(sourceBean));
         } catch (Exception e) {
           // Nothing useful to do, will only fail on final fields, which will be ignored.
         }
       }
+      //获得父类
       parent = parent.getSuperclass();
     }
   }

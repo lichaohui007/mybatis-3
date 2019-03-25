@@ -44,10 +44,15 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  //xml Document对象  xml被解析后生成 org.w3c.dom.Document 对象
   private final Document document;
+  // 是否校验
   private boolean validation;
+  // xml 实体解析器  xml实体解析器 默认情况下 对xml进行校验 会基于xml文档开始位置指定的DTD  XSD 文件
   private EntityResolver entityResolver;
+  //变量Properties 对象
   private Properties variables;
+  // java XPath 对象
   private XPath xpath;
 
   public XPathParser(String xml) {
@@ -139,7 +144,9 @@ public class XPathParser {
   }
 
   public String evalString(Object root, String expression) {
+    //获取指定表达式的值
     String result = (String) evaluate(expression, root, XPathConstants.STRING);
+    // 基于 variables 替换动态值  如果 result 为动态值
     result = PropertyParser.parse(result, variables);
     return result;
   }
@@ -197,7 +204,9 @@ public class XPathParser {
   }
 
   public List<XNode> evalNodes(Object root, String expression) {
+    //获得Node 数组
     List<XNode> xnodes = new ArrayList<XNode>();
+    //封装 XNode 数组
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
       xnodes.add(new XNode(this, nodes.item(i), variables));
@@ -210,13 +219,15 @@ public class XPathParser {
   }
 
   public XNode evalNode(Object root, String expression) {
+    //获取Node 对象
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {
       return null;
     }
+    //封装成XNode 对象  封装variables 动态替换值
     return new XNode(this, node, variables);
   }
-
+  //获取指定元素节点的值
   private Object evaluate(String expression, Object root, QName returnType) {
     try {
       return xpath.evaluate(expression, root, returnType);
@@ -225,9 +236,14 @@ public class XPathParser {
     }
   }
 
+  /***
+   * 创建Document 对象
+   *
+   */
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {
+      //创建DocumentBuilderFactory 对象
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setValidating(validation);
 
@@ -237,7 +253,9 @@ public class XPathParser {
       factory.setCoalescing(false);
       factory.setExpandEntityReferences(true);
 
+      //创建DocumentBuilder 对象  jdk 的xml解析对象
       DocumentBuilder builder = factory.newDocumentBuilder();
+      //设置共享变量进来 用于处理xml 文件
       builder.setEntityResolver(entityResolver);
       builder.setErrorHandler(new ErrorHandler() {
         @Override
@@ -264,6 +282,7 @@ public class XPathParser {
     this.validation = validation;
     this.entityResolver = entityResolver;
     this.variables = variables;
+    // 创建XPathFactory 对象
     XPathFactory factory = XPathFactory.newInstance();
     this.xpath = factory.newXPath();
   }

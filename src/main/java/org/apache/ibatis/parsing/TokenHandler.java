@@ -17,6 +17,12 @@ package org.apache.ibatis.parsing;
 
 /**
  * @author Clinton Begin
+ *
+ * 有4个子类实现
+ * BindingTokenParser
+ * VaribleTokenParser
+ * DynamicCheckerTokenParser
+ * ParameterMappingTokenParser
  */
 public interface TokenHandler {
   String handleToken(String content);

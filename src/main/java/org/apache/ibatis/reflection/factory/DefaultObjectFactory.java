@@ -45,8 +45,10 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    // 获得需要创建的类
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
+    // 创建指定类对象
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 
@@ -58,7 +60,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
-      if (constructorArgTypes == null || constructorArgs == null) {
+      if (constructorArgTypes == null || constructorArgs == null) {//如果参数为空  使用默认的构造函数
         constructor = type.getDeclaredConstructor();
         if (!constructor.isAccessible()) {
           constructor.setAccessible(true);
@@ -69,6 +71,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
       if (!constructor.isAccessible()) {
         constructor.setAccessible(true);
       }
+      //使用特定的构造方法  创建指定类的对象
       return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
     } catch (Exception e) {
       StringBuilder argTypes = new StringBuilder();
@@ -93,6 +96,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
   protected Class<?> resolveInterface(Class<?> type) {
     Class<?> classToCreate;
+    //接口类型 指定到具体的类
     if (type == List.class || type == Collection.class || type == Iterable.class) {
       classToCreate = ArrayList.class;
     } else if (type == Map.class) {
@@ -109,6 +113,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
   @Override
   public <T> boolean isCollection(Class<T> type) {
+    //
     return Collection.class.isAssignableFrom(type);
   }
 
