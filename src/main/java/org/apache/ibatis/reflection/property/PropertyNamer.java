@@ -45,6 +45,7 @@ public final class PropertyNamer {
     return name;
   }
 
+  //判断方法是否是 is  get  set 方法
   public static boolean isProperty(String name) {
     return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
   }

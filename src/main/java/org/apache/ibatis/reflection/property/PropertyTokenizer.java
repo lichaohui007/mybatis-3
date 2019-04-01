@@ -21,13 +21,23 @@ import java.util.Iterator;
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  // 当前字符串
   private String name;
+  // 索引的name  如果存在会被更改
   private final String indexedName;
+  // 编号
+  /**
+   * 如果数组  name[0]  则index =0
+   * 对于map[key]  则index=key
+   */
   private String index;
+  //剩余字符串
   private final String children;
 
   public PropertyTokenizer(String fullname) {
+    // 初始化name children  字符串 使用 。 作为分隔
     int delim = fullname.indexOf('.');
+
     if (delim > -1) {
       name = fullname.substring(0, delim);
       children = fullname.substring(delim + 1);
@@ -35,10 +45,14 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
       name = fullname;
       children = null;
     }
+    //记录当前name
     indexedName = name;
+    //找出 【 的位置
     delim = name.indexOf('[');
     if (delim > -1) {
+      //截取 【】  之间的数字
       index = name.substring(delim + 1, name.length() - 1);
+      // 截取 【 之前的name
       name = name.substring(0, delim);
     }
   }
@@ -64,6 +78,7 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
     return children != null;
   }
 
+  //截取下一个元素
   @Override
   public PropertyTokenizer next() {
     return new PropertyTokenizer(children);

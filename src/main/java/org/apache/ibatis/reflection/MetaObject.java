@@ -29,10 +29,15 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
  * @author Clinton Begin
+ *
+ * 对象元数据 提供了对象属性值的获得和设置方法等  对BaseWrapper 操作的进一步增强
  */
 public class MetaObject {
 
+  //原始Object 对象
   private final Object originalObject;
+
+  //封装过的Object 对象
   private final ObjectWrapper objectWrapper;
   private final ObjectFactory objectFactory;
   private final ObjectWrapperFactory objectWrapperFactory;
@@ -44,6 +49,7 @@ public class MetaObject {
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
 
+    //判断Object 的实际类型  封装为该类型的对象
     if (object instanceof ObjectWrapper) {
       this.objectWrapper = (ObjectWrapper) object;
     } else if (objectWrapperFactory.hasWrapperFor(object)) {
@@ -57,6 +63,7 @@ public class MetaObject {
     }
   }
 
+  //创建MetaObject 对象
   public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;

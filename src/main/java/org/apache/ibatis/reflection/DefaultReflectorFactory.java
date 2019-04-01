@@ -43,6 +43,7 @@ public class DefaultReflectorFactory implements ReflectorFactory {
       Reflector cached = reflectorMap.get(type);
       if (cached == null) {
         //不存在则进行创建
+        //只把Class 对象给了Reflector
         cached = new Reflector(type);
         reflectorMap.put(type, cached);
       }

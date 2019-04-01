@@ -103,6 +103,7 @@ public class Reflector {
     readablePropertyNames = getMethods.keySet().toArray(new String[getMethods.keySet().size()]);
     writeablePropertyNames = setMethods.keySet().toArray(new String[setMethods.keySet().size()]);
     for (String propName : readablePropertyNames) {
+      //将所有的属性转成大写存入
       caseInsensitivePropertyMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
     }
     for (String propName : writeablePropertyNames) {

@@ -28,6 +28,10 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ *
+ * 类的元数据 一个MetaClass 对应一个 Class对象
+ *
+ * MetaClass   是基于 Reflector 方法的封装
  */
 public class MetaClass {
 
@@ -44,7 +48,9 @@ public class MetaClass {
   }
 
   public MetaClass metaClassForProperty(String name) {
+    //获得属性的类
     Class<?> propType = reflector.getGetterType(name);
+    //创建MetaClass
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
@@ -54,9 +60,11 @@ public class MetaClass {
   }
 
   public String findProperty(String name, boolean useCamelCaseMapping) {
+    //下划线转驼峰
     if (useCamelCaseMapping) {
       name = name.replace("_", "");
     }
+    //获得属性
     return findProperty(name);
   }
 
@@ -88,21 +96,30 @@ public class MetaClass {
     return getGetterType(prop);
   }
 
+  //为属性创建MetaClass 对象
   private MetaClass metaClassForProperty(PropertyTokenizer prop) {
+    //调用  获得getting方法返回的类型
     Class<?> propType = getGetterType(prop);
+    //创建 MetaClass 对象
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
   private Class<?> getGetterType(PropertyTokenizer prop) {
+    //获得返回类型
     Class<?> type = reflector.getGetterType(prop.getName());
+    //如果获取数组的某个位置元素  则获取其泛型  list[0].field  那么就会解析list是什么类型  这样才好通过该类型 继续获得field
     if (prop.getIndex() != null && Collection.class.isAssignableFrom(type)) {
+      // 获得返回的类型
       Type returnType = getGenericGetterType(prop.getName());
+      // 如果是泛型  执行真正类型的解析
       if (returnType instanceof ParameterizedType) {
         Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
         if (actualTypeArguments != null && actualTypeArguments.length == 1) {
           returnType = actualTypeArguments[0];
+
           if (returnType instanceof Class) {
             type = (Class<?>) returnType;
+            //判断是否是泛型
           } else if (returnType instanceof ParameterizedType) {
             type = (Class<?>) ((ParameterizedType) returnType).getRawType();
           }
@@ -114,12 +131,15 @@ public class MetaClass {
 
   private Type getGenericGetterType(String propertyName) {
     try {
+      // 获得invoker 对象
       Invoker invoker = reflector.getGetInvoker(propertyName);
+      // 如果MethodInvoker 对象  则说明是getting 方法  解析方法返回类型
       if (invoker instanceof MethodInvoker) {
         Field _method = MethodInvoker.class.getDeclaredField("method");
         _method.setAccessible(true);
         Method method = (Method) _method.get(invoker);
         return TypeParameterResolver.resolveReturnType(method, reflector.getType());
+        //如果 GetFieldInvoker 对象  则说明是field  直接访问
       } else if (invoker instanceof GetFieldInvoker) {
         Field _field = GetFieldInvoker.class.getDeclaredField("field");
         _field.setAccessible(true);
@@ -149,8 +169,11 @@ public class MetaClass {
   public boolean hasGetter(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
+      //判断是否有该属性的getting 方法
       if (reflector.hasGetter(prop.getName())) {
+        // 创建MetaClass 对象
         MetaClass metaProp = metaClassForProperty(prop);
+        //递归判断子表达式   children   是否getting方法
         return metaProp.hasGetter(prop.getChildren());
       } else {
         return false;
